@@ -118,6 +118,30 @@ keyAlias=<your-key-alias>
 storeFile=<path-to-your-keystore.jks>
 ```
 
+## Releases
+
+Every pull request into `main` runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml), which runs `flutter analyze` and `flutter test`.
+
+Every merge to `main` runs [`.github/workflows/release.yml`](.github/workflows/release.yml). It analyzes and tests the code, builds Android and iOS, and publishes a [GitHub Release](../../releases) tagged `v<version>-build.<n>`. Each release has:
+
+- `ClockMate-….apk`: install directly on Android
+- `ClockMate-….aab`: an App Bundle for Google Play
+- `ClockMate-…-unsigned.ipa`: an unsigned iOS build to sideload (AltStore, Sideloadly) or re-sign with your own team
+- `SHA256SUMS.txt`
+
+The version name comes from `version:` in `pubspec.yaml`, and the build number is the workflow run number.
+
+### Android signing secrets
+
+Add these under **Settings → Secrets and variables → Actions** so release APKs are signed with your key. Without them, CI signs with a throwaway debug key, and each new APK won't install over the previous one.
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | `base64 -i android/clockmate-release.jks \| pbcopy` |
+| `ANDROID_KEYSTORE_PASSWORD` | `storePassword` from `key.properties` |
+| `ANDROID_KEY_ALIAS` | `keyAlias` |
+| `ANDROID_KEY_PASSWORD` | `keyPassword` |
+
 ## Project structure
 
 ```
