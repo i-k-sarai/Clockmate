@@ -31,6 +31,15 @@
         android:visibility="gone" />
 
     <TextView
+        android:id="@+id/widget_today_punches"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:textColor="#FFFFFFFF"
+        android:textSize="12sp" />
+
+    <TextView
         android:id="@+id/widget_next_alarm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

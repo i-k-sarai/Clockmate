@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 
-import '../../app/format.dart';
+import 'widget_data.dart';
 import '../alarm/alarm_controller.dart';
 import '../keka/keka_providers.dart';
 import '../settings/settings_controller.dart';
@@ -62,30 +62,13 @@ Future<void> _guard(Future<void> Function() call) async {
 }
 
 Future<void> _pushWidgetData(Ref ref) async {
-  final status = ref.read(attendanceProvider).status;
-  final settings = ref.read(settingsProvider);
-  final now = DateTime.now();
-  final next = settings.nextEvent(now);
-
-  final clockedIn = status?.clockedIn ?? false;
-  final since = clockedIn ? status?.since : null;
-  final statusLabel = status == null
-      ? 'Open ClockMate to sync'
-      : clockedIn
-          ? (since == null ? 'Clocked in' : 'In since ${timeLabel(since)}')
-          : (status.lastClockOut == null
-              ? 'Not clocked in yet'
-              : 'Out at ${timeLabel(status.lastClockOut!)}');
-
-  await HomeWidget.saveWidgetData('clockedIn', clockedIn);
-  // null removes the key; writing 0 would store a 32-bit Int that the widget
-  // can't read back as Long.
-  await HomeWidget.saveWidgetData('sinceMillis', since?.millisecondsSinceEpoch);
-  await HomeWidget.saveWidgetData('statusLabel', statusLabel);
-  await HomeWidget.saveWidgetData(
-    'nextAlarmLabel',
-    next == null ? 'No alarms scheduled' : '${next.action.label} ${relativeDayTime(next.at, now)}',
+  final data = buildWidgetData(
+    ref.read(settingsProvider),
+    ref.read(attendanceProvider).status,
+    DateTime.now(),
   );
-  await HomeWidget.saveWidgetData('nextAlarmMillis', next?.at.millisecondsSinceEpoch ?? 0);
+  for (final MapEntry(:key, :value) in data.entries) {
+    await HomeWidget.saveWidgetData(key, value);
+  }
   await HomeWidget.updateWidget(androidName: androidWidgetName, iOSName: iOSWidgetName);
 }
